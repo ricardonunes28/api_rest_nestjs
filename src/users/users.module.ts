@@ -4,9 +4,10 @@ import { UserRepository } from './users.repository';
 import { UsersService } from './users.service';
 import { UsersController } from './users.controller';
 import { DataSource } from 'typeorm';
+import { PassportModule } from '@nestjs/passport';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([UserRepository])],
+  imports: [TypeOrmModule.forFeature([UserRepository]), PassportModule],
   providers: [UsersService, UserRepository],
   exports: [],
   controllers: [UsersController],
