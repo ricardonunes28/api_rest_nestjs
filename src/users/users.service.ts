@@ -10,6 +10,7 @@ import { User } from './user.entity';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UserRole } from './user-roles.enum';
 import { UpdateUserDto } from './dto/update-users.dto';
+import { FindUsersQueryDto } from './dto/find-users-query.dto';
 
 @Injectable()
 export class UsersService {
@@ -25,7 +26,7 @@ export class UsersService {
     }
   }
 
-  async findUserById(userId: number): Promise<User> {
+  async findUserById(userId: string): Promise<User> {
     const user = await this.userRepository.findOne({
       where: {
         id: userId,
@@ -38,7 +39,7 @@ export class UsersService {
     return user;
   }
 
-  async updateUser(updateUserDto: UpdateUserDto, id: number): Promise<User> {
+  async updateUser(updateUserDto: UpdateUserDto, id: string): Promise<User> {
     const user = await this.findUserById(id);
     const { name, email, role, status } = updateUserDto;
     user.name = name ? name : user.name;
@@ -56,10 +57,17 @@ export class UsersService {
     }
   }
 
-  async deleteUser(userId: number) {
+  async deleteUser(userId: string) {
     const result = await this.userRepository.delete({ id: userId });
     if (!result) {
       throw new NotFoundException('Usuário não encontrado');
     }
+  }
+
+  async findUsers(
+    queryDto: FindUsersQueryDto,
+  ): Promise<{ users: User[]; total: number }> {
+    const users = await this.userRepository.findUsers(queryDto);
+    return users;
   }
 }

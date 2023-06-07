@@ -9,6 +9,7 @@ import {
   Patch,
   ForbiddenException,
   Delete,
+  Query,
 } from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UsersService } from './users.service';
@@ -20,6 +21,7 @@ import { RolesGuard } from 'src/auth/roles.guard';
 import { User } from './user.entity';
 import { GetUser } from 'src/auth/get-user.decorator';
 import { UpdateUserDto } from './dto/update-users.dto';
+import { FindUsersQueryDto } from './dto/find-users-query.dto';
 
 @Controller('users')
 @UseGuards(JwtAuthGuard, RolesGuard)
@@ -52,7 +54,7 @@ export class UsersController {
   async updateUser(
     @Body(ValidationPipe) updateUserDto: UpdateUserDto,
     @GetUser() user: User,
-    @Param('id') id: number,
+    @Param('id') id: string,
   ) {
     if (user.role != UserRole.ADMIN && user.id != id) {
       throw new ForbiddenException(
@@ -65,10 +67,20 @@ export class UsersController {
 
   @Delete(':id')
   @Role(UserRole.ADMIN)
-  async deleteUser(@Param('id') id: number) {
+  async deleteUser(@Param('id') id: string) {
     await this.usersService.deleteUser(id);
     return {
       message: 'Usuário deletado com sucesso',
+    };
+  }
+
+  @Get()
+  @Role(UserRole.ADMIN)
+  async findUsers(@Query() query: FindUsersQueryDto) {
+    const found = await this.usersService.findUsers(query);
+    return {
+      found,
+      message: 'Usuários encontrados',
     };
   }
 }
